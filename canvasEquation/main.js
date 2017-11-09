@@ -4,10 +4,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 function prepareArray() {
   let data =[];
-  for (let x = 0; x < 64; ++x) {
-    data.push(x.toString(2).padStart(6,'0'));
+  let degree = 1;
+  let iterations = Math.pow(2, degree + 1);
+  for (let x = 0; x < iterations; ++x) {
+    data.push(x.toString(2).padStart(degree + 1,'0'));
   }
 
+  console.log(data);
   let points = getPoints(data[0]);
   let equation = getEquation(points);
   renderCanvas(points);
@@ -15,19 +18,27 @@ function prepareArray() {
 
 function getPoints(seed) {
   let data = [];
-  for (let x = 0; x < 6; ++x) {
+  for (let x = 0; x < seed.length; ++x) {
     data[x] = Math.floor((Math.random() * 5) + 1);
   }
   return data;
 }
 
 function getEquation(points) {
+  console.log(points);
   let degreeEquation = points.length - 1;
-  let coefficients = [];
+  let interSum = [];
 
   for (let x = 0; x <= degreeEquation; ++x) {
-    
+    let y = degreeEquation;
+    let sum = 0;
+    do {
+      sum += Math.pow(x, y);
+      --y;
+    } while (y > 0);   
+    interSum.push(sum);
   }
+  console.log(interSum);
 }
 
 function renderCanvas(seed) {

@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 function prepareArray() {
-  let data =[];
-  let degree = 1;
+  let data = [];
+  let degree = 2;
   let iterations = Math.pow(2, degree + 1);
   for (let x = 0; x < iterations; ++x) {
     data.push(x.toString(2).padStart(degree + 1,'0'));
@@ -27,18 +27,34 @@ function getPoints(seed) {
 function getEquation(points) {
   console.log(points);
   let degreeEquation = points.length - 1;
+  let coefficients = [];
   let interSum = [];
+
+  let constValue = points[0];
+
+  for (let x = 1; x < points.length; ++x) {
+    console.log(points[x] - constValue);
+  }
+
+  
 
   for (let x = 0; x <= degreeEquation; ++x) {
     let y = degreeEquation;
     let sum = 0;
     do {
       sum += Math.pow(x, y);
+      if (coefficients[y]) {
+
+      }
       --y;
-    } while (y > 0);   
-    interSum.push(sum);
+    } while (y > 0);
+    
+    
+    coefficients[degreeEquation - x] = points[x] - sum;
+
   }
   console.log(interSum);
+  console.log(coefficients);
 }
 
 function renderCanvas(seed) {

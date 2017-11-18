@@ -12,7 +12,11 @@ function prepareArray() {
 
   console.log(data);
   let points = getPoints(data[0]);
-  let equation = getEquation(points);
+  let matrixVector = gaussJordan(points);
+  let equation = solveLinear(matrixVector);
+
+  console.log(points);
+  console.log(matrixVector);
   renderCanvas(points);
 }
 
@@ -24,37 +28,37 @@ function getPoints(seed) {
   return data;
 }
 
-function getEquation(points) {
-  console.log(points);
+function gaussJordan(points) {
   let degreeEquation = points.length - 1;
+  let vectorPoint = [];
   let coefficients = [];
-  let interSum = [];
 
   let constValue = points[0];
 
-  for (let x = 1; x < points.length; ++x) {
-    console.log(points[x] - constValue);
-  }
-
-  
-
-  for (let x = 0; x <= degreeEquation; ++x) {
-    let y = degreeEquation;
-    let sum = 0;
+  for (let x = 1; x <= degreeEquation; ++x) {
+    vectorPoint.push(points[x] - constValue);
+    let y = 1;
+    let tempCoefficient = [];
     do {
-      sum += Math.pow(x, y);
-      if (coefficients[y]) {
-
-      }
-      --y;
-    } while (y > 0);
-    
-    
-    coefficients[degreeEquation - x] = points[x] - sum;
-
+      tempCoefficient.push(Math.pow(x,y));      
+      y = y + 1;
+    } while (y <= degreeEquation);
+    coefficients.push(tempCoefficient);
   }
-  console.log(interSum);
-  console.log(coefficients);
+
+  let matrixVectorData = {};
+  matrixVectorData.matrixData = coefficients;
+  matrixVectorData.vectorData = vectorPoint;
+  return matrixVectorData;
+}
+
+function solveLinear(inputData) {
+  let matrixData = inputData.matrixData;
+  let vectorData = inputData.vectorData;
+
+  console.log(matrixData);
+  console.log(vectorData);
+  return 0;
 }
 
 function renderCanvas(seed) {

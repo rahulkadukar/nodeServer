@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function(event) { 
-  let degree = 3;
+  let degree = 4;
   let coeff = degree + 1;
 
   let data = [];
@@ -14,10 +14,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     let summaryOutput = [];
     let outputData = prepareArray(coeff);
     outputData.vector = getPoints(data[x]);
-    console.log(JSON.parse(JSON.stringify(outputData)));
     summaryOutput.points = JSON.parse(JSON.stringify(outputData.vector));
-    console.log(summaryOutput);
-    
+
     let answerData = coefficients(outputData);
     summaryOutput.answer = answerData.vector;
     let finalDivName = 'divFinal' + x.toString();
@@ -165,12 +163,22 @@ function printData(output, z) {
 
 function paintGraph(output) {
   let x = output.answer;
-  console.log(x);
-
-  let el = document.createElement('svg');
-  el.setAttribute('id', 'svgGraph');
+  let el = document.createElement('canvas');
+  el.setAttribute('id', 'canvasGraph');
 
   document.body.appendChild(el);
+
+  ctx = el.getContext("2d");
+  ctx.canvas.width = 800;
+  ctx.canvas.height = 400;
+
+  let axisData = {};
+  axisData.xScale = ctx.canvas.width / (x.length + 1);
+  axisData.yScale = ctx.canvas.height / 2 / 20;
+
+  drawAxes(ctx, axisData);
+  drawGraph(ctx, axisData, x);
+  console.log(ctx, axisData);
 
   for (let c = 1; c <= x.length; ++c) {
     let d = x.length;
@@ -181,4 +189,65 @@ function paintGraph(output) {
     } while(d > 0);
     console.log(fx);
   }
+}
+
+function drawAxes(ctx, axisData) {
+  let x0 = ctx.canvas.width * 0.2;
+  let y0 = ctx.canvas.height * 0.5;
+  ctx.beginPath();
+  ctx.strokeStyle = "rgb(128,128,128)"; 
+  ctx.moveTo(0,y0); ctx.lineTo(ctx.canvas.width,y0);  // X axis
+  ctx.moveTo(x0,0); ctx.lineTo(x0,ctx.canvas.height);  // Y axis  
+  ctx.stroke();
+
+  /*
+  for (let x = y0; x > 0; x -= axisData.yScale) {
+    if (x !== y0) { 
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgb(192, 192, 192)';
+      ctx.moveTo(0, x);
+      ctx.lineTo(ctx.canvas.width, x);
+      ctx.moveTo(0, ctx.canvas.height - x);
+      ctx.lineTo(ctx.canvas.width, ctx.canvas.height - x);
+      ctx.stroke();
+    }
+  }
+  */
+}
+
+function drawGraph(ctx, axisData, answer) {
+  let x0 = ctx.canvas.width * 0.2;
+  let y0 = ctx.canvas.height * 0.5;
+
+  let accuracy = 4;
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgb(0, 192, 192)';
+  console.log(axisData);
+
+  for (let x = x0; x < ctx.canvas.width; x += accuracy) {
+    let newX = ((x - x0) / axisData.xScale);
+    let newY = 0;
+
+    let d = answer.length;
+    let fx = 0;
+    do {
+      newY += (Math.pow(newX, d - 1) * answer[answer.length - d]) ;
+      --d;
+    } while(d > 0);
+        
+    let graphY = y0;
+    if (newY < 0) {
+      graphY += (Math.abs(newY) * axisData.yScale);
+    } else {
+      graphY -= (newY * axisData.yScale);
+    }
+    
+    if (x === x0) {
+      ctx.moveTo(x0, graphY);
+    } else {
+      ctx.lineTo((newX * axisData.xScale) + x0, graphY);
+    }
+    // console.log(newX, newY);
+  }
+  ctx.stroke();
 }

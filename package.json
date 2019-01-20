@@ -9,7 +9,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node node_modules\\http-server\\bin\\http-server"
+    "dev": "node node_modules/http-server/bin/http-server"
   },
   "repository": {
     "type": "git",

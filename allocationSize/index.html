@@ -5,18 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Allocation Unit</title>
+  <style>
+    #analysisTable {
+      border: 1px solid black;
+    }
+
+    td, th {
+      padding: 10px;
+      border: 1px solid black;
+    }
+  </style>
 </head>
 <body>
   <input id="file" type="file"></input>
+  <div>
+    <button id="sample">Sample</button>
+  </div>
   <div id="errorMessage" class="defaultHidden"><p></p></div>
   <div id="showOptions" class="defaultHidden">
     <h3>Select options below</h3>
     <button id="addRow" name="Add Row">Add Row</button>
     <button id="autoFill">Auto Fill</button>
-    <button id="autoFill">Analysis</button>
+    <button id="analyze">Analysis</button>
     <table id="sizeTable">
       <tbody></tbody>
     </table>
+    <table id="analysisTable">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
   </div>
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="

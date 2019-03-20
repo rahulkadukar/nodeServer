@@ -11,9 +11,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 function readFile (evt) {
   let files = evt.target.files
-  let file = files[0]   
+  let file = files[0]
   let reader = new FileReader()
   reader.onload = (event) => {
+    fileData = []
     let rawFileData = event.target.result.split('\n')
     let fileLength = rawFileData.length
     let errStatus = 0
@@ -39,9 +40,6 @@ function readFile (evt) {
       }
     }
 
-    let sizeStats = analyzeData(fileData)
-    console.log(sizeStats)
-
     if (errStatus === 0) {
       document.getElementById('showOptions').style.display = 'block'
     }
@@ -59,16 +57,46 @@ function addRow () {
 
 function analyzeData(fData) {
   let fileLength = fData.length
-  let sizeStats = {}
-  sizeStats.size = 0
-  sizeStats.disk = 0
+  let sizeStats = []
+  let allocationSize = [1, 1024, 4096, 8192, 16384, 32768, 65536, 131072]
+  allocationSize.push(262144, 524288, 1048576, 2097152)
+
+  let allocationLength = allocationSize.length
+  let sizeData = {}
+  for (let x = 0; x < allocationLength; ++x) {
+    sizeData[allocationSize[x]] = {}
+    sizeData[allocationSize[x]].size = 0
+    sizeData[allocationSize[x]].disk = 0
+  }
+
+  let sizeOrig = {}
+  sizeOrig.sector = 'Default'
+  sizeOrig.size = 0
+  sizeOrig.disk = 0
 
   for (let x = 0; x < fileLength; ++x) {
-    sizeStats.size += fData[x].s
-    sizeStats.disk += fData[x].d
+    sizeOrig.size += fData[x].s
+    sizeOrig.disk += fData[x].d
+
+    for (let y = 0; y < allocationLength; ++y) {
+      let i = allocationSize[y]
+      sizeData[allocationSize[y]].size += fData[x].s
+      sizeData[allocationSize[y]].disk += i * Math.ceil((fData[x].s/i))
+    }
   }
-  
-  sizeStats.usage = (sizeStats.size / sizeStats.disk ) * 100
+
+  sizeOrig.usage = (sizeOrig.size / sizeOrig.disk ) * 100
+  sizeStats.push(sizeOrig)
+
+  for (let x in sizeData) {
+    let sizeInfo = {}
+    sizeInfo.sector = x
+    sizeInfo.size = sizeData[x].size
+    sizeInfo.disk = sizeData[x].disk
+    sizeInfo.usage = (sizeInfo.size / sizeInfo.disk ) * 100
+    sizeStats.push(sizeInfo)
+  }
+
   return sizeStats
 }
 
@@ -91,6 +119,60 @@ $(document).ready(function() {
   })
 
   $('#analyze').click(function() {
+    let sizeStats = analyzeData(fileData)
+    let sizeLength = sizeStats.length
 
+    $('#analysisTable thead').empty()
+    let tableHead = `<tr><th>Sector</th><th>Size</th>`
+    tableHead += `<th>Disk</th><th>Usage</th></tr>`
+    $('#analysisTable thead').append(tableHead)
+
+    $('#analysisTable tbody').empty()
+    for (let x = 0; x < sizeLength; ++x) {
+      let tableRow = `<tr><td>${sizeStats[x].sector}</td><td>${sizeStats[x].size}</td>`
+      tableRow += `<td>${sizeStats[x].disk}</td><td>${sizeStats[x].usage}</td></tr>`
+      $('#analysisTable tbody').append(tableRow)
+    }
   })
+
+  $('#sample').click(function() {
+    $('#showOptions').show()
+    let fileTemp = fillTempData()
+    console.log(fileTemp)
+    let sizeStats = analyzeData(fileTemp)
+    let sizeLength = sizeStats.length
+
+    $('#analysisTable thead').empty()
+    let tableHead = `<tr><th>Sector</th><th>Size</th>`
+    tableHead += `<th>Disk</th><th>Usage</th></tr>`
+    $('#analysisTable thead').append(tableHead)
+
+    $('#analysisTable tbody').empty()
+    for (let x = 0; x < sizeLength; ++x) {
+      let tableRow = `<tr><td>${sizeStats[x].sector}</td><td>${sizeStats[x].size}</td>`
+      tableRow += `<td>${sizeStats[x].disk}</td><td>${sizeStats[x].usage}</td></tr>`
+      $('#analysisTable tbody').append(tableRow)
+    }
+  })
+
+  function fillTempData() {
+    fileData = []
+    let tempData = [
+      ['a', 177, 4096],
+      ['b', 166737, 167936],
+      ['c', 920, 4096],
+      ['d', 1, 4096]
+    ]
+
+    let tempDataLength = tempData.length
+    for (let x = 0; x < tempDataLength; ++x) {
+      let fileRecord = {}
+      fileRecord.n = tempData[x][0]
+      fileRecord.s = tempData[x][1]
+      fileRecord.d = tempData[x][2]
+      fileData.push(fileRecord)
+    }
+
+    return fileData
+  }
 })

@@ -58,8 +58,16 @@ function addRow () {
 function analyzeData(fData) {
   let fileLength = fData.length
   let sizeStats = []
-  let allocationSize = [1, 1024, 4096, 8192, 16384, 32768, 65536, 131072]
-  allocationSize.push(262144, 524288, 1048576, 2097152)
+
+  let as = (start, stop) => {
+    let arrVal = []
+    while (start <= stop)
+      arrVal.push(Math.pow(2, start++))
+
+    return arrVal
+  }
+  
+  let allocationSize = [1, ...as(10,21)]
 
   let allocationLength = allocationSize.length
   let sizeData = {}
@@ -124,13 +132,15 @@ $(document).ready(function() {
 
     $('#analysisTable thead').empty()
     let tableHead = `<tr><th>Sector</th><th>Size</th>`
-    tableHead += `<th>Disk</th><th>Usage</th></tr>`
+    tableHead += `<th>Disk</th><th>Usage</th><th>Difference</th></tr>`
     $('#analysisTable thead').append(tableHead)
 
     $('#analysisTable tbody').empty()
     for (let x = 0; x < sizeLength; ++x) {
+      let sizeDiff = humanReadable(sizeStats[x].disk - sizeStats[x].size)
       let tableRow = `<tr><td>${sizeStats[x].sector}</td><td>${sizeStats[x].size}</td>`
-      tableRow += `<td>${sizeStats[x].disk}</td><td>${sizeStats[x].usage}</td></tr>`
+      tableRow += `<td>${sizeStats[x].disk}</td><td>${sizeStats[x].usage}</td>` 
+      tableRow += `<td>${sizeDiff}</td></tr>`
       $('#analysisTable tbody').append(tableRow)
     }
   })
@@ -174,5 +184,20 @@ $(document).ready(function() {
     }
 
     return fileData
+  }
+
+  function humanReadable(sizeBytes) {
+    let suffix = ['B', 'KB', 'MB', 'GB', 'TB']
+    let sizeHuman = sizeBytes
+    let indexSuffix = 0
+
+    while(sizeHuman > 1024) {
+      sizeHuman /= 1024
+      ++indexSuffix
+    }
+
+    sizeHuman = `${sizeHuman.toFixed(2)} ${suffix[indexSuffix]}`
+
+    return sizeHuman
   }
 })
